@@ -5,3 +5,10 @@ controllers:
 kernel:
     resource: ../src/Kernel.php
     type: annotation
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+# config/routes.yaml
+authentication_token:
+    path: /api/login
+    methods: ['POST']
