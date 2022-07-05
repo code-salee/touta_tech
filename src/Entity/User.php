@@ -9,20 +9,21 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
-    normalizationContext:['groups' => 'users:read'],
-    denormalizationContext:['groups' => 'users:write'],
+    normalizationContext: ['groups' => ['users:read']],
+    denormalizationContext: ['groups' => ['users:write']],
     routePrefix:"/users",
     collectionOperations: [
         'get' => ['path'=>''],
-        'post' => ['path'=>'']
+        'post' => ["method" => "POST", "path" => "", "route_name" => "post_user"]
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
-        'put' => ['path'=>'/{id}'],
+        'put' => ["method" => "PUT", "path" => "/{id}", "route_name" => "edit_user"],
         'delete' => ['path'=>'/{id}'],
         // 'path' => ['path'=>'/{id}', 'normalization_context' => ['groups' => 'conference:item']]
     ],
@@ -33,24 +34,26 @@ class User extends Personne
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups('users:read')]
+    #[Groups(["users:read"])]
     protected $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups('users:read', 'users:wrtie')]
+    #[Groups(["users:read", "users:write"])]
+    #[Assert\NotBlank(message:"Le statut est obligatoire")]
     private $statut;
 
     
     #[ORM\Column(type: 'boolean')]
-    #[Groups('users:read', 'users:wrtie')]
+    #[Groups(["users:read", "users:write"])]
     private $isBlocked = false;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups('users:read', 'users:wrtie')]
+    #[Groups(["users:read", "users:write"])]
+    #[Assert\NotBlank(message:"Le structure est obligatoire")]
     private $structure;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Activite::class)]
-    #[Groups('users:read')]
+    #[Groups(["users:read"])]
     private $activite;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Feedback::class)]

@@ -11,8 +11,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: ActiviteRepository::class)]
 #[ApiResource(
-    normalizationContext:['groups' => 'activites:read'],
-    denormalizationContext:['groups' => 'activites:write'],
+    normalizationContext: ['groups' => ['activites:read']],
+    denormalizationContext: ['groups' => ['activites:write']],
     routePrefix:"/activites",
     collectionOperations: [
         'get' => ['path'=>''],
@@ -31,26 +31,26 @@ class Activite
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups('activites:read', 'users:read')]
+    #[Groups(["users:read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups('activites:read', 'activites:write', 'users:read')]
+    #[Groups(["users:read"])]
     private $description;
 
     #[ORM\Column(type: 'date')]
-    #[Groups('activites:read', 'activites:write', 'users:read')]
+    #[Groups(["users:read"])]
     private $date;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups('activites:read', 'activites:write', 'users:read')]
+    #[Groups(["users:read"])]
     private $lieu;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'activite')]
     private $user;
 
     #[ORM\OneToMany(mappedBy: 'activite', targetEntity: Feedback::class)]
-    #[Groups('activites:read', 'users:read')]
+    #[Groups(["users:read"])]
     private $feedback;
 
     public function __construct()

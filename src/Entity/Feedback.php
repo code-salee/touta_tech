@@ -29,11 +29,11 @@ class Feedback
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups( 'activites:read', 'users:read')]
+    #[Groups(["users:read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups( 'activites:read', 'users:read')]
+    #[Groups(["users:read"])]
     private $libelle;
 
     #[ORM\ManyToOne(targetEntity: Activite::class, inversedBy: 'feedback')]
