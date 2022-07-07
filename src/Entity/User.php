@@ -69,6 +69,10 @@ class User extends Personne
     #[Groups(["read"])]
     private $admins;
 
+    #[ORM\ManyToOne(targetEntity: Metier::class, inversedBy: 'users')]
+    #[Groups(["read"])]
+    private $metier;
+
     public function __construct()
     {
         $this->activite = new ArrayCollection();
@@ -187,6 +191,18 @@ class User extends Personne
     public function setAdmins(?Admin $admins): self
     {
         $this->admins = $admins;
+
+        return $this;
+    }
+
+    public function getMetier(): ?Metier
+    {
+        return $this->metier;
+    }
+
+    public function setMetier(?Metier $metier): self
+    {
+        $this->metier = $metier;
 
         return $this;
     }

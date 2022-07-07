@@ -7,11 +7,19 @@ use App\Repository\RoleRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: RoleRepository::class)]
 #[ApiResource(
-    normalizationContext:['groups' => 'roles:read'],
-    denormalizationContext:['groups' => 'roles:write'],
+    attributes: [
+        "security" => "is_granted('ROLE_SUPERADMIN')",
+        "security_message" => "Vous avez pas acces à ce ressource",
+        "pagination_items_per_page" => 10
+        ],
+    normalizationContext: ['groups' => ['roles']],
+    denormalizationContext: ['groups' => ['roles']],
     routePrefix:"/roles",
     collectionOperations: [
         'get' => ['path'=>''],
@@ -29,9 +37,12 @@ class Role
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["roles"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(["roles"])]
+    #[Assert\NotBlank(message:"Le libelle est obligatoire")]
     private $libelle;
 
     #[ORM\OneToMany(mappedBy: 'role', targetEntity: Personne::class)]

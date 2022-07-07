@@ -7,11 +7,17 @@ use App\Repository\MetierRepository;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: MetierRepository::class)]
 #[ApiResource(
-    normalizationContext:['groups' => 'metiers:read'],
-    denormalizationContext:['groups' => 'metiers:write'],
+    attributes: [
+        "security" => "is_granted('ROLE_SUPERADMIN')",
+        "security_message" => "Vous avez pas acces à ce ressource",
+        "pagination_items_per_page" => 10
+        ],
     routePrefix:"/metiers",
     collectionOperations: [
         'get' => ['path'=>''],
@@ -21,7 +27,6 @@ use Doctrine\Common\Collections\ArrayCollection;
         'get' => ['path'=>'/{id}'],
         'put' => ['path'=>'/{id}'],
         'delete' => ['path'=>'/{id}'],
-        // 'path' => ['path'=>'/{id}', 'normalization_context' => ['groups' => 'conference:item']]
     ],
     paginationEnabled: false,
     )]
@@ -31,17 +36,20 @@ class Metier
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
+    #[Groups(["read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(["read"])]
+    #[Assert\NotBlank(message:"Le libelle est obligatoire")]
     private $libelle;
 
     #[ORM\OneToMany(mappedBy: 'metier', targetEntity: User::class)]
-    private $user;
+    private $users;
 
     public function __construct()
     {
-        $this->user = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -64,15 +72,15 @@ class Metier
     /**
      * @return Collection<int, User>
      */
-    public function getUser(): Collection
+    public function getUsers(): Collection
     {
-        return $this->user;
+        return $this->users;
     }
 
     public function addUser(User $user): self
     {
-        if (!$this->user->contains($user)) {
-            $this->user[] = $user;
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
             $user->setMetier($this);
         }
 
@@ -81,7 +89,7 @@ class Metier
 
     public function removeUser(User $user): self
     {
-        if ($this->user->removeElement($user)) {
+        if ($this->users->removeElement($user)) {
             // set the owning side to null (unless already changed)
             if ($user->getMetier() === $this) {
                 $user->setMetier(null);
@@ -90,4 +98,5 @@ class Metier
 
         return $this;
     }
+
 }

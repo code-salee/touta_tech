@@ -6,11 +6,16 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\PartenaireRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: PartenaireRepository::class)]
 #[ApiResource(
-    normalizationContext:['groups' => 'partenaires:read'],
-    denormalizationContext:['groups' => 'partenaires:write'],
+    attributes: [
+        "security" => "is_granted('ROLE_SUPERADMIN')",
+        "security_message" => "Vous avez pas acces à ce ressource",
+        "pagination_items_per_page" => 10
+        ],
     routePrefix:"/partenaires",
     collectionOperations: [
         'get' => ['path'=>''],
@@ -33,14 +38,17 @@ class Partenaire
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(["read"])]
+    #[Assert\NotBlank(message:"Le nom est obligatoire")]
     private $nom;
 
     #[ORM\Column(type: 'string')]
     #[Groups(["read"])]
+    #[Assert\NotBlank(message:"Le telephone est obligatoire")]
     private $telephone;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Groups(["read"])]
+    #[Assert\NotBlank(message:"Le adresse est obligatoire")]
     private $adresse;
 
     #[ORM\ManyToOne(targetEntity: Superadmin::class, inversedBy: 'partenaires')]
