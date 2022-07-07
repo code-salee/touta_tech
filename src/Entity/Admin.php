@@ -3,16 +3,24 @@
 namespace App\Entity;
 
 use App\Entity\Personne;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\AdminRepository;
+use App\Controller\PersonneController;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 
 #[ORM\Entity(repositoryClass: AdminRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['admins:read']],
-    denormalizationContext: ['groups' => ['admins:write']],
+    attributes: [
+        "security" => "is_granted('ROLE_SUPERADMIN')",
+        "security_message" => "Vous avez pas acces à ce ressource",
+        "pagination_items_per_page" => 10
+        ],
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
     routePrefix:"/admins",
     collectionOperations: [
         'get' => ['path'=>''],
@@ -20,9 +28,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
-        'put' => ['path'=>'/{id}'],
+        'put' => ["path" => "/{id}", "controller" => PersonneController::class],
         'delete' => ['path'=>'/{id}'],
-        // 'path' => ['path'=>'/{id}', 'normalization_context' => ['groups' => 'conference:item']]
     ],
     paginationEnabled: false,
     )]
@@ -31,12 +38,19 @@ class Admin extends Personne
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["admins:read"])]
     protected $id;
 
     #[ORM\Column(type: 'boolean')]
-    #[Groups(["admins:read", "admins:write"])]
+    #[Groups(["read", "write", "current"])]
     private $isblocked = false;
+
+    #[ORM\OneToMany(mappedBy: 'admins', targetEntity: User::class)]
+    private $users;
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -51,6 +65,36 @@ class Admin extends Personne
     public function setIsblocked(bool $isblocked): self
     {
         $this->isblocked = $isblocked;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setAdmins($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): self
+    {
+        if ($this->users->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getAdmins() === $this) {
+                $user->setAdmins(null);
+            }
+        }
 
         return $this;
     }

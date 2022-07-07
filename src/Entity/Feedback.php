@@ -6,11 +6,16 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Repository\FeedbackRepository;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: FeedbackRepository::class)]
 #[ApiResource(
-    normalizationContext:['groups' => 'feedbacks:read'],
-    denormalizationContext:['groups' => 'feedbacks:write'],
+    attributes: [
+        "pagination_items_per_page" => 10
+        ],
+    normalizationContext:['groups' => 'feedbacks'],
+    denormalizationContext:['groups' => 'feedbacks'],
     routePrefix:"/feedbacks",
     collectionOperations: [
         'get' => ['path'=>''],
@@ -20,7 +25,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'get' => ['path'=>'/{id}'],
         'put' => ['path'=>'/{id}'],
         'delete' => ['path'=>'/{id}'],
-        // 'path' => ['path'=>'/{id}', 'normalization_context' => ['groups' => 'conference:item']]
     ],
     paginationEnabled: false,
     )]
@@ -29,17 +33,19 @@ class Feedback
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["users:read"])]
+    #[Groups(["read", "feedbacks", "activites"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["users:read"])]
+    #[Groups(["read", "feedbacks", "activites"])]
+    #[Assert\NotBlank(message:"Le commentaire est obligatoire")]
     private $libelle;
 
     #[ORM\ManyToOne(targetEntity: Activite::class, inversedBy: 'feedback')]
     private $activite;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'feedback')]
+    #[Groups(["feedbacks"])]
     private $user;
 
 

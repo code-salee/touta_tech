@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Entity\Personne;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\UserRepository;
+use App\Controller\PersonneController;
 use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -14,8 +15,13 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['users:read']],
-    denormalizationContext: ['groups' => ['users:write']],
+    attributes: [
+        "security" => "is_granted('ROLE_SUPERADMIN') or is_granted('ROLE_ADMIN')",
+        "security_message" => "Vous avez pas acces à ce ressource",
+        "pagination_items_per_page" => 10
+        ],
+    normalizationContext: ['groups' => ['read']],
+    denormalizationContext: ['groups' => ['write']],
     routePrefix:"/users",
     collectionOperations: [
         'get' => ['path'=>''],
@@ -23,9 +29,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
-        'put' => ["method" => "PUT", "path" => "/{id}", "route_name" => "edit_user"],
+        'put' => ["path" => "/{id}", "controller" => PersonneController::class],
+        'path' => ["method" => "PATCH", "path" => "/{id}/etat", "route_name" => "refusé_user"],
         'delete' => ['path'=>'/{id}'],
-        // 'path' => ['path'=>'/{id}', 'normalization_context' => ['groups' => 'conference:item']]
     ],
     paginationEnabled: false,
     )]
@@ -34,30 +40,34 @@ class User extends Personne
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["users:read"])]
     protected $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["users:read", "users:write"])]
+    #[Groups(["read", "write", "current"])]
     #[Assert\NotBlank(message:"Le statut est obligatoire")]
     private $statut;
 
     
     #[ORM\Column(type: 'boolean')]
-    #[Groups(["users:read", "users:write"])]
+    #[Groups(["read", "write", "current"])]
     private $isBlocked = false;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(["users:read", "users:write"])]
+    #[Groups(["read", "write", "current"])]
     #[Assert\NotBlank(message:"Le structure est obligatoire")]
     private $structure;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Activite::class)]
-    #[Groups(["users:read"])]
+    #[Groups(["read", "current"])]
     private $activite;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Feedback::class)]
+    #[Groups(["activites"])]
     private $feedback;
+
+    #[ORM\ManyToOne(targetEntity: Admin::class, inversedBy: 'users')]
+    #[Groups(["read"])]
+    private $admins;
 
     public function __construct()
     {
@@ -165,6 +175,18 @@ class User extends Personne
                 $feedback->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAdmins(): ?Admin
+    {
+        return $this->admins;
+    }
+
+    public function setAdmins(?Admin $admins): self
+    {
+        $this->admins = $admins;
 
         return $this;
     }

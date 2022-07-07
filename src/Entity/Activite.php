@@ -8,11 +8,16 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 #[ORM\Entity(repositoryClass: ActiviteRepository::class)]
 #[ApiResource(
-    normalizationContext: ['groups' => ['activites:read']],
-    denormalizationContext: ['groups' => ['activites:write']],
+    attributes: [
+        "pagination_items_per_page" => 10
+        ],
+    normalizationContext: ['groups' => ['activites']],
+    denormalizationContext: ['groups' => ['activites']],
     routePrefix:"/activites",
     collectionOperations: [
         'get' => ['path'=>''],
@@ -22,7 +27,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'get' => ['path'=>'/{id}'],
         'put' => ['path'=>'/{id}'],
         'delete' => ['path'=>'/{id}'],
-        // 'path' => ['path'=>'/{id}', 'normalization_context' => ['groups' => 'conference:item']]
     ],
     paginationEnabled: false,
     )]
@@ -31,26 +35,30 @@ class Activite
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["users:read"])]
+    #[Groups(["read", "activites"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["users:read"])]
+    #[Groups(["read", "activites"])]
+    #[Assert\NotBlank(message:"Le description est obligatoire")]
     private $description;
 
     #[ORM\Column(type: 'date')]
-    #[Groups(["users:read"])]
+    #[Groups(["read", "activites"])]
+    #[Assert\NotBlank(message:"La date est obligatoire")]
     private $date;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["users:read"])]
+    #[Groups(["read", "activites"])]
+    #[Assert\NotBlank(message:"Le lieu est obligatoire")]
     private $lieu;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'activite')]
+    #[Groups(["activites"])]
     private $user;
 
     #[ORM\OneToMany(mappedBy: 'activite', targetEntity: Feedback::class)]
-    #[Groups(["users:read"])]
+    #[Groups(["read"])]
     private $feedback;
 
     public function __construct()

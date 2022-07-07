@@ -20,7 +20,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'get' => ['path'=>'/{id}'],
         'put' => ['path'=>'/{id}'],
         'delete' => ['path'=>'/{id}'],
-        // 'path' => ['path'=>'/{id}', 'normalization_context' => ['groups' => 'conference:item']]
     ],
     paginationEnabled: false,
     )]
@@ -29,19 +28,19 @@ class Partenaire
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["superadmins:read", "users:read"])]
+    #[Groups(["read"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["superadmins:read", "users:read"])]
+    #[Groups(["read"])]
     private $nom;
 
     #[ORM\Column(type: 'string')]
-    #[Groups(["superadmins:read", "users:read"])]
+    #[Groups(["read"])]
     private $telephone;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["superadmins:read", "users:read"])]
+    #[Groups(["read"])]
     private $adresse;
 
     #[ORM\ManyToOne(targetEntity: Superadmin::class, inversedBy: 'partenaires')]

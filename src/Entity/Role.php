@@ -21,7 +21,6 @@ use Doctrine\Common\Collections\ArrayCollection;
         'get' => ['path'=>'/{id}'],
         'put' => ['path'=>'/{id}'],
         'delete' => ['path'=>'/{id}'],
-        // 'path' => ['path'=>'/{id}', 'normalization_context' => ['groups' => 'conference:item']]
     ],
     paginationEnabled: false,
     )]

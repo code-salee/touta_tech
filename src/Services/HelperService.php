@@ -19,6 +19,7 @@ use ApiPlatform\Core\Validator\ValidatorInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class HelperService
 {
@@ -31,10 +32,11 @@ class HelperService
     private $repoSuperadmin;
     private $repoAdmin;
     private $repoPersonne;
+    private $tokenStorage;
     public function __construct(SerializerInterface $serializer, 
     ValidatorInterface $validator,EntityManagerInterface $manager, UserPasswordHasherInterface $encoder,
     RoleRepository $repo, UserRepository $repoUser, SuperadminRepository $repoSuperadmin, 
-    AdminRepository $repoAdmin, PersonneRepository $repoPersonne){
+    AdminRepository $repoAdmin, PersonneRepository $repoPersonne, TokenStorageInterface $tokenStorage){
         $this->serializer=$serializer;
         $this->validator=$validator;
         $this->encoder=$encoder;
@@ -44,6 +46,7 @@ class HelperService
         $this->repoSuperadmin=$repoSuperadmin;
         $this->repoAdmin=$repoAdmin;
         $this->repoPersonne=$repoPersonne;
+        $this->tokenStorage=$tokenStorage;
     }
 
     /**
@@ -86,15 +89,21 @@ class HelperService
 
 
     /**
-     * Foction de modification d'une personne 
+     * Fonction de modification d'une personne 
      * La fonction n'est accessible que sur le service
-     * Pour faire un enregistrement avec ce service on utilise la form-data et l'iri (exp role='/api/admins')
+     * Pour bloquerune personne avec ce service on change l'etat isBlocked
      * sur le role de la personne pour pouvoir determiner son selon sa profil
      * */
-    public function UpdatePerson(Request $request): Response
+    public function BlockPerson(Request $request): Response
     {
+  
         $id = $request->get('id');
-        $personnes = $request->request->all();
+       // $personnes = $request->request->all();
+        $personnes = $request->getContent();
+
+        $personnes = preg_split("/form-data; /", $personnes);
+        dd($personnes);
+
         $person = $this->repoPersonne->findOneBy(['id' => $id]);
         $role = $person->getRole()->getLibelle();
         if ($role == "SUPERADMIN") {
@@ -112,6 +121,7 @@ class HelperService
             $newProfil = "User";
             $class="App\Entity\\$newProfil";
         }
+
         $data = $this->serializer->denormalize($personnes, $class, 'json');
         $errors = $this->validator->validate($data);
         if ($errors) {
@@ -120,24 +130,10 @@ class HelperService
         }
         $password = $data->getPassword();
         $data=$data->setPassword($this->encoder->hashPassword($data, $password));
-        $this->manager->persist($data);
+        dd($data);
+        // $this->manager->persist($data);
         $this->manager->flush();
         return new JsonResponse($data);
-        // if($this->repoUser->findOneBy(['id' => $id])){
-        //     $person = $this->repoUser->findOneBy(['id' => $id]);
-        //     return new JsonResponse("vous etes user");
-        //     //dd($person);
-        // }
-        // elseif ($admin->findOneBy(['id' => $id])) {
-        //     $person = $user->findOneBy(['id' => $id]);
-        //     return new JsonResponse("vous etes admin");
-        // }
-        // elseif ($superadmin->findOneBy(['id' => $id])) {
-        //     $person = $user->findOneBy(['id' => $id]);
-        //     return new JsonResponse("vous etes admin");
-        // }
-        // dd($person->getRole()->getLibelle());
 
-        // return new JsonResponse("vous avez ajouter un user succes",Response::HTTP_CREATED);
     }
 }
