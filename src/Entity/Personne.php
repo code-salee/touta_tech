@@ -16,9 +16,6 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[ORM\DiscriminatorColumn(name:"type",  type:"string")]
 #[UniqueEntity( fields:("email"), message:"L'email doit être unique")]
 #[ApiResource(
-    normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']],
-    routePrefix:"/personne",
     collectionOperations: [
         'get' => ["method" => "GET", "path" => "", "route_name" => "get_person", 'normalization_context'=> ['groups' => ['current']]],
         'post' => ['path'=>'']
@@ -28,7 +25,10 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
         'put' => ['path'=>'/{id}'],
         'delete' => ['path'=>'/{id}'],
     ],
+    denormalizationContext: ['groups' => ['write']],
+    normalizationContext: ['groups' => ['read']],
     paginationEnabled: false,
+    routePrefix: "/personne",
     )]
     
 class Personne implements UserInterface, PasswordAuthenticatedUserInterface
