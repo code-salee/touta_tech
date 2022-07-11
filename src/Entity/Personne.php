@@ -202,7 +202,7 @@ class Personne implements UserInterface, PasswordAuthenticatedUserInterface
    /**
      * @see UserInterface
      */
-    public function getUserIdentifier()
+    public function getUserIdentifier(): string
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;
