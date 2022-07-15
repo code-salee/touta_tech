@@ -29,6 +29,9 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
+        'get' => ['path'=>'/{id}/feedbacks',  'normalization_context'=> ['groups' => ['user_feedbacks']],
+        // "security" => "is_granted('ROLE_ADMIN')"
+    ],
         'put' => ["path" => "/{id}", "controller" => PersonneController::class],
         'path' => ["method" => "PATCH", "path" => "/{id}/etat", "route_name" => "refusé_user"],
         'delete' => ['path'=>'/{id}'],
@@ -58,7 +61,7 @@ class User extends Personne
     private $structure;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Activite::class)]
-    #[Groups(["read", "current"])]
+    #[Groups(["read", "current", "user_feedbacks"])]
     private $activite;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Feedback::class)]
@@ -70,7 +73,6 @@ class User extends Personne
     private $admins;
 
     #[ORM\ManyToOne(targetEntity: Metier::class, inversedBy: 'users')]
-    #[Groups(["read"])]
     private $metier;
 
     public function __construct()
