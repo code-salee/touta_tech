@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['write']],
     routePrefix:"/superadmins",
     collectionOperations: [
-        'get' => ["method" => "GET", "path" => "", "route_name" => "get_super_admin"],
+        'get' => ['path'=>''],
         'post' => ["method" => "POST", "path" => "", "route_name" => "post_super_admin"]
     ],
     itemOperations: [

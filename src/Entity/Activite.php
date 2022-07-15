@@ -21,7 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     routePrefix:"/activites",
     collectionOperations: [
         'get' => ['path'=>''],
-        'post' => ['path'=>'']
+        'post' => ["method" => "POST", "path" => "", "route_name" => "post_activite"]
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
@@ -35,31 +35,39 @@ class Activite
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["read", "activites"])]
+    #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["read", "activites"])]
+    #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
     #[Assert\NotBlank(message:"Le description est obligatoire")]
     private $description;
 
     #[ORM\Column(type: 'date')]
-    #[Groups(["read", "activites"])]
+    #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
     #[Assert\NotBlank(message:"La date est obligatoire")]
     private $date;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["read", "activites"])]
+    #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
     #[Assert\NotBlank(message:"Le lieu est obligatoire")]
     private $lieu;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'activite')]
-    #[Groups(["activites"])]
+    #[Groups(["activites", "admin_activites"])]
     private $user;
 
     #[ORM\OneToMany(mappedBy: 'activite', targetEntity: Feedback::class)]
-    #[Groups(["read"])]
+    #[Groups(["read", "admin_activites", "user_feedbacks"])]
     private $feedback;
+
+    #[Groups(["activites"])]
+    #[ORM\ManyToOne(targetEntity: Admin::class, inversedBy: 'activite')]
+    private $admin;
+
+    #[Groups(["read", "activites", "admin_activites"])]
+    #[ORM\Column(type: 'integer')]
+    private $etat;
 
     public function __construct()
     {
@@ -146,6 +154,30 @@ class Activite
                 $feedback->setActivite(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getAdmin(): ?Admin
+    {
+        return $this->admin;
+    }
+
+    public function setAdmin(?Admin $admin): self
+    {
+        $this->admin = $admin;
+
+        return $this;
+    }
+
+    public function getEtat(): ?int
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(int $etat): self
+    {
+        $this->etat = $etat;
 
         return $this;
     }

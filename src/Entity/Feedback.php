@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     routePrefix:"/feedbacks",
     collectionOperations: [
         'get' => ['path'=>''],
-        'post' => ['path'=>'']
+        'post' => ["method" => "POST", "path" => "", "route_name" => "post_feedback"]
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
@@ -33,11 +33,11 @@ class Feedback
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["read", "feedbacks", "activites"])]
+    #[Groups(["read", "feedbacks", "activites", "user_feedbacks"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["read", "feedbacks", "activites"])]
+    #[Groups(["read", "feedbacks", "activites", "user_feedbacks"])]
     #[Assert\NotBlank(message:"Le commentaire est obligatoire")]
     private $libelle;
 

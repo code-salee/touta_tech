@@ -28,6 +28,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
+        'get' => ['path'=>'/{id}/activites',  'normalization_context'=> ['groups' => ['admin_activites']],
+        // "security" => "is_granted('ROLE_ADMIN')"
+    ],
         'put' => ["path" => "/{id}", "controller" => PersonneController::class],
         'delete' => ['path'=>'/{id}'],
     ],
@@ -47,9 +50,14 @@ class Admin extends Personne
     #[ORM\OneToMany(mappedBy: 'admins', targetEntity: User::class)]
     private $users;
 
+    #[Groups(["read", "write", "current", "admin_activites"])]
+    #[ORM\OneToMany(mappedBy: 'admin', targetEntity: Activite::class)]
+    private $activite;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->activite = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -93,6 +101,36 @@ class Admin extends Personne
             // set the owning side to null (unless already changed)
             if ($user->getAdmins() === $this) {
                 $user->setAdmins(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Activite>
+     */
+    public function getActivite(): Collection
+    {
+        return $this->activite;
+    }
+
+    public function addActivite(Activite $activite): self
+    {
+        if (!$this->activite->contains($activite)) {
+            $this->activite[] = $activite;
+            $activite->setAdmin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActivite(Activite $activite): self
+    {
+        if ($this->activite->removeElement($activite)) {
+            // set the owning side to null (unless already changed)
+            if ($activite->getAdmin() === $this) {
+                $activite->setAdmin(null);
             }
         }
 

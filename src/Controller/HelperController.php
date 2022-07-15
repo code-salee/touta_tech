@@ -4,10 +4,15 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Entity\Admin;
+use App\Entity\Activite;
+use App\Entity\Feedback;
 use App\Entity\Superadmin;
 use App\Services\HelperService;
+use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use App\Repository\AdminRepository;
+use App\Repository\ActiviteRepository;
+use App\Repository\FeedbackRepository;
 use App\Repository\SuperadminRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,16 +29,38 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 
 class HelperController extends AbstractController
 {
+
+    private $repoAdmin;
+    private $repoPersonne;
+    private $tokenStorage;
+    private $serializer;
+    private $repoRole;
+    private $repoUser;
+    private $repoSuperadmin;
+    private $helper;
+    public function __construct(SerializerInterface $serializer, TokenStorageInterface $tokenStorage,
+    EntityManagerInterface $manager, RoleRepository $repoRole, UserRepository $repoUser, 
+    SuperadminRepository $repoSuperadmin, AdminRepository $repoAdmin, HelperService $helper){
+        $this->serializer=$serializer;
+        $this->manager=$manager;
+        $this->repo=$repoRole;
+        $this->repoUser=$repoUser;
+        $this->repoSuperadmin=$repoSuperadmin;
+        $this->repoAdmin=$repoAdmin;
+        $this->tokenStorage=$tokenStorage;
+        $this->helper=$helper;
+    }
+
     /**
      * path('api/superadmins')
      * Foction d'ajout d'un superadmin avec comme role ROLE_SUPERADMIN
      * L'enregistrement se fait avec l'utilisation de form-data
      * */
     #[Route('api/superadmins', methods: "POST", name: 'post_super_admin')]
-    public function AddSuperAdmin(Request $request, HelperService $helper)
+    public function AddSuperAdmin(Request $request)
     {
         $data= new Superadmin();
-        $helper->AddPerson($request, $data);
+        $this->helper->AddPerson($request, $data);
         return new JsonResponse("vous avez ajouter un user succes",Response::HTTP_CREATED);
     }
 
@@ -43,10 +70,10 @@ class HelperController extends AbstractController
      * L'enregistrement se fait avec l'utilisation de form-data
      * */
     #[Route('api/admins', methods: "POST", name: 'post_admin')]
-    public function AddAdmin(Request $request, HelperService $helper)
+    public function AddAdmin(Request $request)
     {
         $data= new Admin();
-        $helper->AddPerson($request, $data);
+        $this->helper->AddPerson($request, $data);
         return new JsonResponse("vous avez ajouter un user succes",Response::HTTP_CREATED);
     }
 
@@ -56,34 +83,22 @@ class HelperController extends AbstractController
      * L'enregistrement se fait avec l'utilisation de form-data
      * */
     #[Route('api/users', methods: "POST", name: 'post_user')]
-    public function AddUsers(Request $request, HelperService $helper)
+    public function AddUsers(Request $request)
     {
         $data= new User();
-        $helper->AddPerson($request, $data);
+        $this->helper->AddPerson($request, $data);
         return new JsonResponse("vous avez ajouter un user succes",Response::HTTP_CREATED);
     }
-
-    /**
-     * path('api/superadmins')
-     * Foction pour obtenir tous les d'un utilisateur avec comme role ROLE_SUPERADMIN
-     * */
-    #[Route('api/superadmins', methods: "GET", name: 'get_super_admin')]
-    public function GetSuperAdmin(SuperadminRepository $repo)
-    {
-        
-        $data= $repo->findAll();
-        return $this->json($data,200);
-        //return new JsonResponse($data,Response::HTTP_OK);
-    }
+    
     
     /**
      * path('api/personne')
      * Fonction pour obtenir tous les d'un utilisateur avec comme role ROLE_SUPERADMIN
      * */
     #[Route('api/personne', methods: "GET", name: 'get_person')]
-    public function GetCurrentUser(TokenStorageInterface $tokenStorage)
+    public function GetCurrentUser()
     {
-        $data = $tokenStorage->getToken()->getUser();
+        $data = $this->tokenStorage->getToken()->getUser();
 
         return $this->json($data,200);
         //return new JsonResponse($data,Response::HTTP_OK);
@@ -95,18 +110,18 @@ class HelperController extends AbstractController
      * L'utilisateur peut être enrôlé et affecté à un admin ou refusé
      * */
     #[Route('api/users/{id}/etat', methods: "PATCH", name: 'refusé_user')]
-    public function RefuseUser(Request $request, $id, UserRepository $repo, AdminRepository $repoAdmin, SerializerInterface $serializer, EntityManagerInterface $em)
+    public function RefuseUser(Request $request, $id)
     {
         $data = $request->getContent();
-        $data = $serializer->decode($data, "json");
+        $data = $this->serializer->decode($data, "json");
         $statut = $data['statut'];
         if(isset($data['admins'])){
             $getAdmin = $data['admins'];
             $id_admin = explode('/', $getAdmin);
-            $admin = $repoAdmin->findOneBy(['id' => $id_admin[3]]);
+            $admin = $this->repoAdmin->findOneBy(['id' => $id_admin[3]]);
         }
         $id = $request->get('id');
-        $users = $repo->findOneBy(['id' => $id]);
+        $users = $this->repoUser->findOneBy(['id' => $id]);
         if(!$data || $data = null){
             return new JsonResponse("L'identifiant n'existe pas",Response::HTTP_NOT_FOUND);
         }
@@ -115,7 +130,7 @@ class HelperController extends AbstractController
            if(isset($admin) && $statut != "refuse"){
             $users = $users->setAdmins($admin);
            }
-           $em->flush();
+           $this->manager->flush();
             return new JsonResponse("L'utilisateur enrolé avec succes",Response::HTTP_OK);
         }
         elseif ($users->getStatut() == 'refuse') {
@@ -125,6 +140,54 @@ class HelperController extends AbstractController
             return new JsonResponse("L'utilisateur a été deja enrôlé à un admin",Response::HTTP_OK);
         }
     }
+
+
+    /**
+     * path('api/activites')
+     * Fonction pour creer une activite avec comme role ROLE_ADMIN
+     * */
+    #[Route('api/activites', methods: "POST", name: 'post_activite')]
+    public function CreateActivity(Request $request, ActiviteRepository  $repoActivite)
+    {
+
+        $data = $this->tokenStorage->getToken()->getUser();
+        $admin = $this->repoAdmin->findOneBy(['id' => $data->getId()]);
+        if($data->getRoles()[0] != "ROLE_ADMIN")
+        {
+            return new JsonResponse("Votre profil ne vous permet pas d'ajouter une activite",Response::HTTP_BAD_REQUEST);
+        }
+        $activite = $request->getContent();
+        $activite = $this->serializer->deserialize($activite , Activite::class, 'json');
+        $activite = $activite->setAdmin($admin);
+        $this->manager->persist($activite);
+        $this->manager->flush();
+
+        return $this->json($data,200);
+    }
+
+     /**
+     * path('api/feedbacks')
+     * Fonction pour ajouter un feedback sur une activite avec comme role ROLE_UTILISATEUR
+     * */
+    #[Route('api/feedbacks', methods: "POST", name: 'post_feedback')]
+    public function CreateFeedback(Request $request, FeedbackRepository  $repoFeed)
+    {
+
+        $data = $this->tokenStorage->getToken()->getUser();
+        $user = $this->repoUser->findOneBy(['id' => $data->getId()]);
+        if($data->getRoles()[0] != "ROLE_UTILISATEUR")
+        {
+            return new JsonResponse("Votre profil ne vous permet pas d'effectuer un commentaire",Response::HTTP_BAD_REQUEST);
+        }
+        $feedback = $request->getContent();
+        $feedback = $this->serializer->deserialize($feedback , Feedback::class, 'json');
+        $feedback = $feedback->setAdmin($user);
+        $this->manager->persist($feedback);
+        $this->manager->flush();
+
+        return $this->json($data,200);
+    }
+
 }
 
 
