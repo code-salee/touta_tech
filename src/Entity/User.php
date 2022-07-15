@@ -70,7 +70,7 @@ class User extends Personne
     private $admins;
 
     #[ORM\ManyToOne(targetEntity: Metier::class, inversedBy: 'users')]
-    #[Groups(["read"])]
+    #[Groups(["read", "write"])]
     private $metier;
 
     public function __construct()
