@@ -28,4 +28,14 @@ class PersonneController extends AbstractController
             return $personne;
         }
     }
+
+    /**
+     * @Route(name="userEnroles", path="/api/admins/users")
+     */
+    public function userEnroles() {
+        $user = $this->getUser();
+        $users = $user->getUsers();
+
+        return $this->json($users, 200);
+    }
 }

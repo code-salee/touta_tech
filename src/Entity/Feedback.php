@@ -33,11 +33,11 @@ class Feedback
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["read", "feedbacks", "activites", "user_feedbacks"])]
+    #[Groups(["read", "feedbacks", "activites", "user_feedbacks", "admin_activites"])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["read", "feedbacks", "activites", "user_feedbacks"])]
+    #[Groups(["read", "feedbacks", "activites", "user_feedbacks", "admin_activites"])]
     #[Assert\NotBlank(message:"Le commentaire est obligatoire")]
     private $libelle;
 
@@ -45,7 +45,7 @@ class Feedback
     private $activite;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'feedback')]
-    #[Groups(["feedbacks"])]
+    #[Groups(["feedbacks", "admin_activites"])]
     private $user;
 
 
