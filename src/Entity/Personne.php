@@ -55,7 +55,7 @@ class Personne implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string')]
     #[Assert\NotBlank(message:"Le telephone est obligatoire")]
-    #[Groups(["read", "write", "current", "admin_activites"])]
+    #[Groups(["read", "write", "current", "admin_activites", "activites"])]
     protected $telephone;
 
     #[ORM\Column(type: 'string', length: 255)]

@@ -65,7 +65,7 @@ class Activite
     #[ORM\ManyToOne(targetEntity: Admin::class, inversedBy: 'activite')]
     private $admin;
 
-    #[Groups(["read", "activites", "admin_activites"])]
+    #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
     #[ORM\Column(type: 'integer')]
     private $etat = 1;
 

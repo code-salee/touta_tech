@@ -15,11 +15,11 @@ use Symfony\Component\Validator\Constraints as Assert;
         "pagination_items_per_page" => 10
         ],
     normalizationContext:['groups' => 'feedbacks'],
-    denormalizationContext:['groups' => 'feedbacks'],
+    denormalizationContext:['groups' => 'feedbackss '],
     routePrefix:"/feedbacks",
     collectionOperations: [
         'get' => ['path'=>''],
-        'post' => ["method" => "POST", "path" => "", "route_name" => "post_feedback"]
+        'post' => ["method" => "POST", "path" => ""]
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
