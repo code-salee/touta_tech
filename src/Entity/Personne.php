@@ -16,9 +16,6 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 #[ORM\DiscriminatorColumn(name:"type",  type:"string")]
 #[UniqueEntity( fields:("email"), message:"L'email doit être unique")]
 #[ApiResource(
-    normalizationContext: ['groups' => ['read']],
-    denormalizationContext: ['groups' => ['write']],
-    routePrefix:"/personne",
     collectionOperations: [
         'get' => ["method" => "GET", "path" => "", "route_name" => "get_person", 'normalization_context'=> ['groups' => ['current']]],
         'post' => ['path'=>'']
@@ -28,7 +25,10 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
         'put' => ['path'=>'/{id}'],
         'delete' => ['path'=>'/{id}'],
     ],
+    denormalizationContext: ['groups' => ['write']],
+    normalizationContext: ['groups' => ['read']],
     paginationEnabled: false,
+    routePrefix: "/personne",
     )]
     
 class Personne implements UserInterface, PasswordAuthenticatedUserInterface
@@ -36,7 +36,7 @@ class Personne implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["read", "current"])]
+    #[Groups(["read", "current", "admin_activites"])]
     protected $id;
 
     #[ORM\Column(type: 'json')]
@@ -45,22 +45,22 @@ class Personne implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message:"Le prenom est obligatoire")]
-    #[Groups(["read", "write", "current", "feedbacks", "activites"])]
+    #[Groups(["read", "write", "current", "feedbacks", "activites", "admin_activites"])]
     protected $prenom;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message:"Le nom est obligatoire")]
-    #[Groups(["read", "write", "current", "feedbacks", "activites"])]
+    #[Groups(["read", "write", "current", "feedbacks", "activites", "admin_activites", "admin_activites"])]
     protected $nom;
 
     #[ORM\Column(type: 'string')]
     #[Assert\NotBlank(message:"Le telephone est obligatoire")]
-    #[Groups(["read", "write", "current"])]
+    #[Groups(["read", "write", "current", "admin_activites"])]
     protected $telephone;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message:"L'adresse est obligatoire")]
-    #[Groups(["read", "write", "current"])]
+    #[Groups(["read", "write", "current", "admin_activites"])]
     protected $adresse;
 
     #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'personnes')]
@@ -69,7 +69,7 @@ class Personne implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message:"L'email est obligatoire")]
-    #[Groups(["read", "write", "current"])]
+    #[Groups(["read", "write", "current", "admin_activites"])]
     protected $email;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -202,7 +202,7 @@ class Personne implements UserInterface, PasswordAuthenticatedUserInterface
    /**
      * @see UserInterface
      */
-    public function getUserIdentifier()
+    public function getUserIdentifier(): string
     {
         // If you store any temporary, sensitive data on the user, clear it here
         // $this->plainPassword = null;

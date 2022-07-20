@@ -67,7 +67,7 @@ class Activite
 
     #[Groups(["read", "activites", "admin_activites"])]
     #[ORM\Column(type: 'integer')]
-    private $etat;
+    private $etat = 1;
 
     public function __construct()
     {

@@ -14,7 +14,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: MetierRepository::class)]
 #[ApiResource(
     attributes: [
-        "security" => "is_granted('ROLE_SUPERADMIN')",
+        "security" => "is_granted('ROLE_SUPERADMIN') || is_granted('ROLE_ADMIN')",
         "security_message" => "Vous avez pas acces à ce ressource",
         "pagination_items_per_page" => 10
         ],
