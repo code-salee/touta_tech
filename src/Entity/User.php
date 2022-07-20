@@ -30,6 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         'get' => ['path'=>'/{id}/feedbacks',  'normalization_context'=> ['groups' => ['user_feedbacks']],
         // "security" => "is_granted('ROLE_ADMIN')"
     ],
+        'get' => ["path" => '/{id}'],
         'put' => ["path" => "/{id}", "controller" => PersonneController::class],
         'path' => ["method" => "PATCH", "path" => "/{id}/etat", "route_name" => "refusé_user"],
         'delete' => ['path'=>'/{id}'],

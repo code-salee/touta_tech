@@ -15,11 +15,10 @@ use Symfony\Component\Validator\Constraints as Assert;
         "pagination_items_per_page" => 10
         ],
     normalizationContext:['groups' => 'feedbacks'],
-    denormalizationContext:['groups' => 'feedbackss '],
     routePrefix:"/feedbacks",
     collectionOperations: [
         'get' => ['path'=>''],
-        'post' => ["method" => "POST", "path" => ""]
+        'post' => ["path" => ""]
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
@@ -42,6 +41,7 @@ class Feedback
     private $libelle;
 
     #[ORM\ManyToOne(targetEntity: Activite::class, inversedBy: 'feedback')]
+    #[Groups(["feedbacks"])]
     private $activite;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'feedback')]
