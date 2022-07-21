@@ -162,7 +162,7 @@ class HelperController extends AbstractController
         $this->manager->persist($activite);
         $this->manager->flush();
 
-        return $this->json($data,200);
+        return $this->json($activite,200);
     }
 
      /**

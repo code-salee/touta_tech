@@ -26,10 +26,7 @@ use Symfony\Component\Validator\Constraints as Assert;
         'post' => ["method" => "POST", "path" => "", "route_name" => "post_user"]
     ],
     itemOperations: [
-        'get' => ['path'=>'/{id}'],
-        'get' => ['path'=>'/{id}/feedbacks',  'normalization_context'=> ['groups' => ['user_feedbacks']],
-        // "security" => "is_granted('ROLE_ADMIN')"
-    ],
+        'get' => ['path' => '/{id}/feedbacks'],
         'get' => ["path" => '/{id}'],
         'put' => ["path" => "/{id}", "controller" => PersonneController::class],
         'path' => ["method" => "PATCH", "path" => "/{id}/etat", "route_name" => "refusé_user"],
