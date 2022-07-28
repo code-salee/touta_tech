@@ -28,9 +28,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
-        'get' => ['path'=>'/{id}/activites',  'normalization_context'=> ['groups' => ['admin_activites']],
-        // "security" => "is_granted('ROLE_ADMIN')"
-    ],
+        'get' => ['path'=>'/{id}/activites',  'normalization_context'=> ['groups' => ['admin_activites']]],
         'put' => ["path" => "/{id}", "controller" => PersonneController::class],
         'delete' => ['path'=>'/{id}'],
     ],

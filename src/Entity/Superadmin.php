@@ -27,6 +27,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     ],
     itemOperations: [
         'get' => ['path'=>'/{id}'],
+        'gtActivites' => ['path' => '/{id}/activites', 'method' => 'GET', 'normalization_context' => ['groups' => ['superadmin_activites']] ],
         'put' => ["path" => "/{id}", "controller" => PersonneController::class],
         'delete' => ['path'=>'/{id}'],
     ],
@@ -43,9 +44,17 @@ class Superadmin extends Personne
     #[Groups(["read"])]
     private $partenaires;
 
+    #[ORM\OneToMany(mappedBy: 'superadmin', targetEntity: Activite::class)]
+    #[Groups(['superadmin_activites'])]
+    private $activites;
+
+    #[ORM\Column(type: 'boolean')]
+    private $isblocked = false;
+
     public function __construct()
     {
         $this->partenaires = new ArrayCollection();
+        $this->activites = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -79,6 +88,48 @@ class Superadmin extends Personne
                 $partenaire->setSuperadmin(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Activite>
+     */
+    public function getActivites(): Collection
+    {
+        return $this->activites;
+    }
+
+    public function addActivite(Activite $activite): self
+    {
+        if (!$this->activites->contains($activite)) {
+            $this->activites[] = $activite;
+            $activite->setSuperadmin($this);
+        }
+
+        return $this;
+    }
+
+    public function removeActivite(Activite $activite): self
+    {
+        if ($this->activites->removeElement($activite)) {
+            // set the owning side to null (unless already changed)
+            if ($activite->getSuperadmin() === $this) {
+                $activite->setSuperadmin(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function isIsblocked(): ?bool
+    {
+        return $this->isblocked;
+    }
+
+    public function setIsblocked(bool $isblocked): self
+    {
+        $this->isblocked = $isblocked;
 
         return $this;
     }

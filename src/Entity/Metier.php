@@ -14,8 +14,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: MetierRepository::class)]
 #[ApiResource(
     attributes: [
-        "security" => "is_granted('ROLE_SUPERADMIN') || is_granted('ROLE_ADMIN')",
-        "security_message" => "Vous avez pas acces à ce ressource",
         "pagination_items_per_page" => 10
         ],
     routePrefix:"/metiers",
@@ -46,6 +44,9 @@ class Metier
 
     #[ORM\OneToMany(mappedBy: 'metier', targetEntity: User::class)]
     private $users;
+
+    #[ORM\Column(type: 'boolean')]
+    private $isblocked = false;
 
     public function __construct()
     {
@@ -95,6 +96,18 @@ class Metier
                 $user->setMetier(null);
             }
         }
+
+        return $this;
+    }
+
+    public function isIsblocked(): ?bool
+    {
+        return $this->isblocked;
+    }
+
+    public function setIsblocked(bool $isblocked): self
+    {
+        $this->isblocked = $isblocked;
 
         return $this;
     }

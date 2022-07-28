@@ -22,13 +22,13 @@ class PersonneController extends AbstractController
         $this->encoder = $encoder;
         $this->serializer = $serializer;
     }
-    
+
     public function __invoke(Personne $personne, Request $request): Personne
     {
         $data = $this->tokenStorage->getToken()->getUser();
         $user = $request->getContent();
         $user = $this->serializer->decode($user, "json");
-       
+
         if($data->getId() == null || $data->getId() != null){
             if(isset($user['password']))
             {
@@ -40,7 +40,7 @@ class PersonneController extends AbstractController
     }
 
     /**
-     * @Route(name="userEnroles", path="/api/admins/users")
+     * @Route(name="userEnroles", path="/api/admins/users", methods={"GET"})
      */
     public function userEnroles() {
         $user = $this->getUser();

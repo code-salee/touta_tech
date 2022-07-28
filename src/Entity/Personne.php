@@ -36,7 +36,7 @@ class Personne implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["read", "current", "admin_activites"])]
+    #[Groups(["read", "current", "admin_activites", 'superadmin_activites'])]
     protected $id;
 
     #[ORM\Column(type: 'json')]
@@ -45,22 +45,22 @@ class Personne implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message:"Le prenom est obligatoire")]
-    #[Groups(["read", "write", "current", "feedbacks", "activites", "admin_activites"])]
+    #[Groups(["read", "write", "current", "feedbacks", "activites", "admin_activites", 'superadmin_activites'])]
     protected $prenom;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message:"Le nom est obligatoire")]
-    #[Groups(["read", "write", "current", "feedbacks", "activites", "admin_activites", "admin_activites"])]
+    #[Groups(["read", "write", "current", "feedbacks", "activites", "admin_activites", 'superadmin_activites'])]
     protected $nom;
 
     #[ORM\Column(type: 'string')]
     #[Assert\NotBlank(message:"Le telephone est obligatoire")]
-    #[Groups(["read", "write", "current", "admin_activites", "activites"])]
+    #[Groups(["read", "write", "current", "admin_activites", 'superadmin_activites', "activites"])]
     protected $telephone;
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message:"L'adresse est obligatoire")]
-    #[Groups(["read", "write", "current", "admin_activites"])]
+    #[Groups(["read", "write", "current", "admin_activites", 'superadmin_activites'])]
     protected $adresse;
 
     #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'personnes')]
@@ -69,7 +69,7 @@ class Personne implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'string', length: 255)]
     #[Assert\NotBlank(message:"L'email est obligatoire")]
-    #[Groups(["read", "write", "current", "admin_activites"])]
+    #[Groups(["read", "write", "current", "admin_activites", 'superadmin_activites'])]
     protected $email;
 
     #[ORM\Column(type: 'string', length: 255)]

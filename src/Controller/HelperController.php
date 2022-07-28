@@ -40,7 +40,7 @@ class HelperController extends AbstractController
     private $helper;
     public function __construct(SerializerInterface $serializer, TokenStorageInterface $tokenStorage,
     EntityManagerInterface $manager, RoleRepository $repoRole, UserRepository $repoUser, 
-    SuperadminRepository $repoSuperadmin, AdminRepository $repoAdmin, HelperService $helper){
+    SuperadminRepository $repoSuperadmin, AdminRepository $repoAdmin, HelperService $helper,){
         $this->serializer=$serializer;
         $this->manager=$manager;
         $this->repo=$repoRole;
@@ -125,12 +125,11 @@ class HelperController extends AbstractController
         if(!$data || $data = null){
             return new JsonResponse("L'identifiant n'existe pas",Response::HTTP_NOT_FOUND);
         }
-        if ($users->getStatut() == 'en attente') {
-           $users = $users->setStatut($statut);
-           if(isset($admin) && $statut != "refuse"){
+        if ($users->getStatut() == 'en attente' && $statut != "refuse") {
+            $users = $users->setStatut($statut);
             $users = $users->setAdmins($admin);
-           }
-           $this->manager->flush();
+            $this->manager->persist($users);
+            $this->manager->flush();
             return new JsonResponse("L'utilisateur enrolé avec succes",Response::HTTP_OK);
         }
         elseif ($users->getStatut() == 'refuse') {
@@ -151,14 +150,19 @@ class HelperController extends AbstractController
     {
 
         $data = $this->tokenStorage->getToken()->getUser();
-        $admin = $this->repoAdmin->findOneBy(['id' => $data->getId()]);
-        if($data->getRoles()[0] != "ROLE_ADMIN")
-        {
-            return new JsonResponse("Votre profil ne vous permet pas d'ajouter une activite",Response::HTTP_BAD_REQUEST);
-        }
         $activite = $request->getContent();
         $activite = $this->serializer->deserialize($activite , Activite::class, 'json');
-        $activite = $activite->setAdmin($admin);
+
+        if ($data->getRoles()[0] === 'ROLE_SUPERADMIN') {
+            $superadmin = $this->repoSuperadmin->findOneBy(['id' => $data->getId()]);
+            $activite = $activite->setSuperadmin($superadmin);
+        }
+
+        if ($data->getRoles()[0] === 'ROLE_ADMIN') {
+            $admin = $this->repoAdmin->findOneBy(['id' => $data->getId()]);
+            $activite = $activite->setAdmin($admin);
+        }
+
         $this->manager->persist($activite);
         $this->manager->flush();
 

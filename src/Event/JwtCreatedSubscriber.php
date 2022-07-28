@@ -17,6 +17,7 @@ class JwtCreatedSubscriber
         $data = $event->getData();
 
         $data['id'] = $user->getId();
+        $data['isblocked'] = $user->isIsblocked();
 
         $event->setData($data);
     }

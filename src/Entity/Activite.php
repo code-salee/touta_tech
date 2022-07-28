@@ -35,30 +35,30 @@ class Activite
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
+    #[Groups(["read", "activites", "admin_activites", "user_feedbacks", 'superadmin_activites'])]
     private $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
+    #[Groups(["read", "activites", "admin_activites", "user_feedbacks", 'superadmin_activites'])]
     #[Assert\NotBlank(message:"Le description est obligatoire")]
     private $description;
 
     #[ORM\Column(type: 'date')]
-    #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
+    #[Groups(["read", "activites", "admin_activites", "user_feedbacks", 'superadmin_activites'])]
     #[Assert\NotBlank(message:"La date est obligatoire")]
     private $date;
 
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
+    #[Groups(["read", "activites", "admin_activites", "user_feedbacks", 'superadmin_activites'])]
     #[Assert\NotBlank(message:"Le lieu est obligatoire")]
     private $lieu;
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'activite')]
-    #[Groups(["activites", "admin_activites"])]
+    #[Groups(["activites", "admin_activites", 'superadmin_activites'])]
     private $user;
 
     #[ORM\OneToMany(mappedBy: 'activite', targetEntity: Feedback::class)]
-    #[Groups(["read", "admin_activites", "user_feedbacks"])]
+    #[Groups(["read", "admin_activites", "user_feedbacks", 'superadmin_activites'])]
     private $feedback;
 
     #[Groups(["activites"])]
@@ -68,6 +68,9 @@ class Activite
     #[Groups(["read", "activites", "admin_activites", "user_feedbacks"])]
     #[ORM\Column(type: 'integer')]
     private $etat = 1;
+
+    #[ORM\ManyToOne(targetEntity: Superadmin::class, inversedBy: 'activites')]
+    private $superadmin;
 
     public function __construct()
     {
@@ -178,6 +181,18 @@ class Activite
     public function setEtat(int $etat): self
     {
         $this->etat = $etat;
+
+        return $this;
+    }
+
+    public function getSuperadmin(): ?Superadmin
+    {
+        return $this->superadmin;
+    }
+
+    public function setSuperadmin(?Superadmin $superadmin): self
+    {
+        $this->superadmin = $superadmin;
 
         return $this;
     }

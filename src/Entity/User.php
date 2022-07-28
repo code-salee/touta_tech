@@ -27,9 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     itemOperations: [
         'get' => ["path" => '/{id}'],
-        'get' => ['path'=>'/{id}/feedbacks',  'normalization_context'=> ['groups' => ['user_feedbacks']],
-        // "security" => "is_granted('ROLE_ADMIN')"
-    ],
+        'getFeedback' => ['path'=>'/{id}/feedbacks', 'method' => 'GET',  'normalization_context'=> ['groups' => ['user_feedbacks']] ],
         'put' => ["path" => "/{id}", "controller" => PersonneController::class],
         'path' => ["method" => "PATCH", "path" => "/{id}/etat", "route_name" => "refusé_user"],
         'delete' => ['path'=>'/{id}'],
@@ -67,7 +65,7 @@ class User extends Personne
     private $feedback;
 
     #[ORM\ManyToOne(targetEntity: Admin::class, inversedBy: 'users')]
-    #[Groups(["read"])]
+    #[Groups(["read", "write"])]
     private $admins;
 
     #[ORM\ManyToOne(targetEntity: Metier::class, inversedBy: 'users')]
