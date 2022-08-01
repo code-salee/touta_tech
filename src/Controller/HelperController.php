@@ -127,7 +127,7 @@ class HelperController extends AbstractController
         }
         if ($users->getStatut() == 'en attente' && $statut != "refuse") {
             $users = $users->setStatut($statut);
-            $users = $users->setAdmins($admin);
+//            $users = $users->setAdmins($admin);
             $this->manager->persist($users);
             $this->manager->flush();
             return new JsonResponse("L'utilisateur enrolé avec succes",Response::HTTP_OK);

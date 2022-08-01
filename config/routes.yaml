@@ -1,3 +1,8 @@
+getUsers:
+    path: /api/admin/users
+    controller: App\Controller\PersonneController::getUsers
+    methods: ['GET']
+
 controllers:
     resource: ../src/Controller/
     type: annotation

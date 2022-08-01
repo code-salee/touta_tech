@@ -40,9 +40,9 @@ class PersonneController extends AbstractController
     }
 
     /**
-     * @Route(name="userEnroles", path="/api/admins/users", methods={"GET"})
+     * @Route(name="getUsers", path="/api/admin/users", methods={"GET"})
      */
-    public function userEnroles() {
+    public function getUsers() {
         $user = $this->getUser();
         $users = $user->getUsers();
 

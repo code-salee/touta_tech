@@ -58,10 +58,11 @@ class HelperService
     public function AddPerson(Request $request): Response
     {
         $personnes = $request->request->all();
-        $role_id = $personnes['role'];
-        $role_id = explode('/', $role_id);
-        $role = $this->repo->findOneBy(['id' => $role_id[3]]);
-        $role = $role->getLibelle();
+        $role_id = $personnes['roles'];
+//        dd($role_id);
+//        $role_id = explode('/', $role_id);
+        $roles = $this->repo->findOneBy(['libelle' => $role_id]);
+        $role = $roles->getLibelle();
         if ($role == "SUPERADMIN") {
             $newProfil = "Superadmin";
             $class="App\Entity\\$newProfil";
@@ -74,6 +75,7 @@ class HelperService
             $newProfil = "User";
             $class="App\Entity\\$newProfil";
         }
+        $personnes['role'] = '/api/roles/'.$roles->getId();
         $data = $this->serializer->denormalize($personnes, $class, 'json');
         $errors = $this->validator->validate($data);
         if ($errors) {
@@ -102,7 +104,6 @@ class HelperService
         $personnes = $request->getContent();
 
         $personnes = preg_split("/form-data; /", $personnes);
-        dd($personnes);
 
         $person = $this->repoPersonne->findOneBy(['id' => $id]);
         $role = $person->getRole()->getLibelle();
@@ -130,7 +131,6 @@ class HelperService
         }
         $password = $data->getPassword();
         $data=$data->setPassword($this->encoder->hashPassword($data, $password));
-        dd($data);
         // $this->manager->persist($data);
         $this->manager->flush();
         return new JsonResponse($data);

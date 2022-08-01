@@ -24,10 +24,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
     routePrefix:"/admins",
     collectionOperations: [
         'get' => ['path'=>''],
-        'post' => ["method" => "POST", "path" => "", "route_name" => "post_admin"]
+        'post' => ["method" => "POST", "path" => "", "route_name" => "post_admin"],
     ],
     itemOperations: [
-        'get' => ['path'=>'/{id}'],
+        'getbyId' => ['path'=>'/{id}', "method" => "GET"],
         'get' => ['path'=>'/{id}/activites',  'normalization_context'=> ['groups' => ['admin_activites']]],
         'put' => ["path" => "/{id}", "controller" => PersonneController::class],
         'delete' => ['path'=>'/{id}'],
