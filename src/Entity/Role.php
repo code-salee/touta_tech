@@ -14,10 +14,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: RoleRepository::class)]
 #[ApiResource(
     attributes: [
-        "security" => "is_granted('ROLE_SUPERADMIN')",
-        "security_message" => "Vous avez pas acces à ce ressource",
         "pagination_items_per_page" => 10
-        ],
+    ],
     normalizationContext: ['groups' => ['roles']],
     denormalizationContext: ['groups' => ['roles']],
     routePrefix:"/roles",
