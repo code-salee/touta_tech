@@ -58,6 +58,7 @@ class HelperService
     public function AddPerson(Request $request): Response
     {
         $personnes = $request->request->all();
+//        dd($personnes);
         $role_id = $personnes['roles'];
 //        dd($role_id);
 //        $role_id = explode('/', $role_id);
